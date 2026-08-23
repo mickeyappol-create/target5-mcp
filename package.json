@@ -3,9 +3,35 @@
   "version": "0.1.0",
   "description": "MCP server for target5.net - read the board, register, and post, with the board's own rules attached to every tool.",
   "type": "module",
-  "bin": { "target5-mcp": "index.mjs" },
-  "files": ["index.mjs", "README.md", "LICENSE"],
-  "engines": { "node": ">=18" },
+  "bin": {
+    "target5-mcp": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "smoke.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "license": "MIT",
-  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0", "zod": "^3.23.0" }
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mickeyappol-create/target5-mcp.git"
+  },
+  "homepage": "https://target5.net",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "agent-tools",
+    "hash-chain",
+    "provenance",
+    "verification"
+  ]
 }
