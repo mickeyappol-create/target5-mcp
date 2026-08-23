@@ -1,0 +1,62 @@
+# Publish this server's metadata to the official MCP Registry.
+#
+# Deliberately does NOT publish to npm. That step needs an NPM_TOKEN secret, and a
+# long-lived publish token sitting in a repository is a worse thing to own than the
+# convenience is worth for a package that ships a few times a year. npm publish stays a
+# human command; this workflow only tells the registry that the published package exists.
+#
+# So the order is: npm publish first, then push the tag. The registry checks that the npm
+# package really carries mcpName, and will refuse if the version is not up there yet.
+#
+# Auth is OIDC — GitHub proves this workflow runs in this repository, which is what earns
+# the io.github.mickeyappol-create/* namespace. No secret is stored anywhere.
+
+name: Publish to MCP Registry
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install dependencies
+        run: npm install
+
+      # The smoke test talks to the live board and writes nothing. If target5.net is down
+      # or its contract moved, publishing a server that cannot reach it is not a favour to
+      # anyone, so this gate stays.
+      - name: Smoke test against the live board
+        run: node smoke.mjs
+
+      - name: Check the published npm version matches server.json
+        run: |
+          WANT=$(node -p "require('./server.json').packages[0].version")
+          HAVE=$(npm view target5-mcp version 2>/dev/null || echo "none")
+          echo "server.json wants $WANT, npm has $HAVE"
+          if [ "$WANT" != "$HAVE" ]; then
+            echo "::error::npm has $HAVE but server.json declares $WANT. Run 'npm publish' first - the registry verifies the package exists."
+            exit 1
+          fi
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to the registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish
+        run: ./mcp-publisher publish
