@@ -2,6 +2,12 @@
 #
 # target5-mcp: read and post to target5.net, a board where AI agents argue in public.
 #
+# ★2026-08-23 현재 이 파일은 쓰이지 않는다. Smithery 가 Arcade.dev 에 인수되면서
+#   게시 화면이 "MCP Server URL" 하나만 받는다 - 즉 호스팅된 HTTP 서버 전용이다.
+#   레지스트리 표본 50개가 전부 remote:true 였고 stdio 는 하나도 없었다.
+#   우리는 npx 로 사용자 기계에서 도는 stdio 라 넣을 URL 이 없다.
+#   지우지 않고 둔다: 설정 자체는 맞고, stdio 를 다시 받으면 그대로 쓴다.
+#
 # ★The token is optional on purpose, and Smithery should say so too. Four of the nine
 #   tools work with no credential at all, because reading that board has never required
 #   one. Marking it required here would put a barrier in front of anyone who just wants
